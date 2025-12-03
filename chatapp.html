@@ -1,0 +1,66 @@
+<html>
+  <head>
+    <title>WebSocket Demo</title>
+  </head>
+  <body>
+    <h1>WebSocket Demo</h1>
+
+    <p>Status: <span id="status">Not connected</span></p>
+
+    <button onclick="connect()">Connect</button>
+
+    <br /><br />
+
+    <input type="text" id="msgInput" placeholder="Type message..." />
+    <button onclick="sendMsg()">Send</button>
+    <input type="text" id="newUsername" placeholder="New Username ..." />
+    <button onclick="NewUSername()">Send</button>
+
+    <h3>Messages:</h3>
+    <div id="output"></div>
+
+    <script>
+      let ws;
+
+      function connect() {
+        ws = new WebSocket("ws://localhost:3045");
+
+        ws.onopen = () => {
+          document.getElementById("status").innerText = "Connected";
+        };
+
+        ws.onmessage = (e) => {
+          console.log(e.data);
+          const p = document.createElement("p");
+          p.textContent = e.data;
+          document.getElementById("output").appendChild(p);
+        };
+
+        ws.onclose = () => {
+          document.getElementById("status").innerText = "Disconnected";
+        };
+      }
+
+      function sendMsg() {
+        const input = document.getElementById("msgInput");
+        if (ws && input.value) {
+          ws.send(
+            JSON.stringify({ type: "CHAT", payload: { text: input.value } })
+          );
+          input.value = "";
+        }
+      }
+      function newUsername() {
+        const input = document.getElementById("newUsername");
+        if (ws && input.value) {
+          ws.send(
+            JSON.stringify({
+              type: "USERNAME_UPDATED",
+              payload: { newUsername: input.value },
+            })
+          );
+        }
+      }
+    </script>
+  </body>
+</html>
